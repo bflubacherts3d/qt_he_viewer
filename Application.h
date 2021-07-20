@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtWidgets/QtWidgets>
+#include "hps.h"
 
 class MainWindow;
 
@@ -11,5 +12,6 @@ public:
     virtual ~Application(void);
   
 private:
+    HPS::World _world;
     QPointer<MainWindow> _main_window;
 };
