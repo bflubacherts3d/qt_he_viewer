@@ -1,0 +1,6 @@
+moc_*
+.xcode
+*.xcodeproj
+Debug
+Release
+Info.plist
