@@ -1,4 +1,7 @@
+#include <A3DSDKIncludes.h>
+#include "Application.h"
 #include "MainWindow.h"
+#include "SceneGraphBuilder.h"
 
 MainWindow::MainWindow() : QMainWindow() {
     
@@ -13,8 +16,17 @@ MainWindow::MainWindow() : QMainWindow() {
     setCentralWidget(splitter);
     
     auto fileMenu = menuBar()->addMenu("File");
-    fileMenu->addAction("Open", this, &MainWindow::onFileOpen);
-    fileMenu->addAction("Close", this, &MainWindow::onFileClose);
+    fileMenu->addAction("Open", this, &MainWindow::onFileOpen, QKeySequence::Open);
+    fileMenu->addAction("Close", this, &MainWindow::onFileClose, QKeySequence::Close);
+    
+    HPS::DistantLightKit light;
+    light.SetDirection(HPS::Vector(0, 0, -1.5f));
+    light.SetColor( HPS::RGBAColor( 0.75, 0.75, 0.75, 1. ) );
+    light.SetCameraRelative(true);
+
+    _hps_widget->getView().GetSegmentKey().InsertDistantLight(light);
+    _hps_widget->getView().GetSegmentKey().GetVisibilityControl().SetLines(true);
+    _hps_widget->getView().GetSegmentKey().GetMaterialMappingControl().SetLineColor(HPS::RGBAColor::Black());
 }
 
 MainWindow::~MainWindow( void ) {
@@ -58,10 +70,42 @@ void MainWindow::onFileOpen() {
     }
     
     // close current file
+    onFileClose();
     
     // open new file
+    A3DRWParamsLoadData load_params;
+    A3D_INITIALIZE_DATA(A3DRWParamsLoadData, load_params);
+    load_params.m_sGeneral.m_eReadGeomTessMode = kA3DReadTessOnly;
+    load_params.m_sGeneral.m_bReadSolids = true;
+    A3DAsmModelFile *model_file = nullptr;
+    auto const load_result = A3DAsmModelFileLoadFromFile(qPrintable(filename), &load_params, &model_file);
+    if(A3D_SUCCESS != load_result) {
+        QString error_mesage = A3DMiscGetErrorMsg(load_result);
+        QMessageBox::warning(this, "Load Error", QString("Unable to load the specified file. ") + error_mesage);
+        return;
+    }
+    
+    static_cast<Application*>(qApp)->setModelFile(model_file);
+    
+    SceneGraphBuilder builder(model_file);
+    
+    auto hps_model = HPS::Factory::CreateModel();
+    hps_model.GetSegmentKey().IncludeSegment(builder.build().root_key);
+    _hps_widget->getView().AttachModel(hps_model);
+    
+    HPS::CameraKit camera;
+    _hps_widget->getView().ComputeFitWorldCamera(camera);
+    _hps_widget->getView().SmoothTransition(camera);
+    
 }
 
 void MainWindow::onFileClose() {
+    static_cast<Application*>(qApp)->setModelFile(nullptr);
     
+    auto hps_model = _hps_widget->getView().GetAttachedModel();
+    if(hps_model.Type() == HPS::Type::Model) {
+        _hps_widget->getView().DetachModel();
+        hps_model.Delete();
+        _hps_widget->getView().Update();
+    }
 }

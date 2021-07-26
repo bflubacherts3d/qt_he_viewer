@@ -1,9 +1,10 @@
+#define INITIALIZE_A3D_API
+#include <A3DSDKIncludes.h>
+
 #include "Application.h"
 #include "MainWindow.h"
 #include "hoops_license.h"
 
-#define INITIALIZE_A3D_API
-#include <A3DSDKIncludes.h>
 
 Application::Application(int &argc, char **argv)
 : QApplication(argc, argv),
