@@ -5,6 +5,9 @@
 
 MainWindow::MainWindow() : QMainWindow() {
     
+    setWindowTitle("HOOPS Exchange Tutorial");
+    
+    
     _hps_widget = new ts3d::HPSWidget(this);
     _bom_table_widget = new BOMTableWidget(this);
 
@@ -90,13 +93,14 @@ void MainWindow::onFileOpen() {
     SceneGraphBuilder builder(model_file);
     
     auto hps_model = HPS::Factory::CreateModel();
-    hps_model.GetSegmentKey().IncludeSegment(builder.build().root_key);
+    hps_model.GetSegmentKey().IncludeSegment(builder.build());
     _hps_widget->getView().AttachModel(hps_model);
     
     HPS::CameraKit camera;
     _hps_widget->getView().ComputeFitWorldCamera(camera);
     _hps_widget->getView().SmoothTransition(camera);
     
+    _bom_table_widget->refresh();
 }
 
 void MainWindow::onFileClose() {
@@ -108,4 +112,6 @@ void MainWindow::onFileClose() {
         hps_model.Delete();
         _hps_widget->getView().Update();
     }
+
+    _bom_table_widget->refresh();
 }

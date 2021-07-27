@@ -7,10 +7,9 @@ SceneGraphBuilder::SceneGraphBuilder(A3DAsmModelFile *model_file)
     
 }
 
-SceneGraph SceneGraphBuilder::build() {
-    SceneGraph g;
+HPS::SegmentKey SceneGraphBuilder::build() {
     if(nullptr == _model_file) {
-        return g;
+        return HPS::SegmentKey();
     }
     
     ts3d::InstancePathMap instance_path_map;
@@ -24,7 +23,7 @@ SceneGraph SceneGraphBuilder::build() {
     }
     
     // Create a root segment corresponding to the A3DAsmModelFile
-    g.root_key = HPS::Database::CreateRootSegment();
+    auto root_key = HPS::Database::CreateRootSegment();
     for(auto const &instance_path_map_entry : instance_path_map) {
         auto const this_rep_item = instance_path_map_entry.first;
         auto const &geometry_kits_for_this_rep_item = ri_geomery_kits[this_rep_item];
@@ -34,7 +33,7 @@ SceneGraph SceneGraphBuilder::build() {
             if(!instance.Instance::getNetShow() || instance.Instance::getNetRemoved()) {
                 continue;
             }
-            auto instance_segment = g.root_key.Subsegment();
+            auto instance_segment = root_key.Subsegment();
 
             // set the modeling matrix
             auto const matrix_kit = computeNetTransform(instance_path);
@@ -83,7 +82,7 @@ SceneGraph SceneGraphBuilder::build() {
         }
     }
     
-    return g;
+    return root_key;
 }
 
 // static

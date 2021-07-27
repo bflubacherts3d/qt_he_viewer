@@ -15,7 +15,6 @@ HEADERS += Application.h \
     BOMTableWidget.h \
     MainWindow.h \
     HPSWidget.h \
-    SceneGraph.h \
     SceneGraphBuilder.h \
 
 
@@ -24,7 +23,6 @@ SOURCES += Application.cpp \
     main.cpp \
     MainWindow.cpp \
     HPSWidget.cpp \
-    SceneGraph.cpp \
     SceneGraphBuilder.cpp \
 
 macx {

@@ -4,13 +4,12 @@
 #include <hps.h>
 #include "A3DSDKIncludes.h"
 #include "ExchangeToolkit.h"
-#include "SceneGraph.h"
 
 class SceneGraphBuilder {
 public:
     SceneGraphBuilder( A3DAsmModelFile *model_file );
     
-    SceneGraph build(void);
+    HPS::SegmentKey build(void);
 
 private:
     struct GeometryKits {
