@@ -42,6 +42,11 @@ HPS::SegmentKey SceneGraphBuilder::build() {
             
             // set up a segment for the "default" material
             auto ri_segment = instance_segment.Subsegment();
+            auto const ri_net_style = instance.Instance::getNetStyle();
+            auto const ri_material_kit = createMaterialKit(ri_net_style);
+            ri_segment.GetMaterialMappingControl().SetFaceMaterial(ri_material_kit);
+            
+            QVector<QPair<A3DGraphStyleData,HPS::SegmentKey>> unique_face_style_subsegments;
             auto face_idx = 0u;
             for(auto const &shell_kit : geometry_kits_for_this_rep_item.shell_kits) {
                 auto const this_face_idx = face_idx++;
@@ -49,7 +54,26 @@ HPS::SegmentKey SceneGraphBuilder::build() {
                     continue;
                 }
                 
-                ri_segment.InsertShell(shell_kit);
+                auto const face_net_style = instance.getNetStyle(this_face_idx);
+                if(0 != memcmp(&face_net_style, &ri_net_style, sizeof(A3DGraphStyleData))) {
+                    // the style for this particular face differs from the owning body style
+                    auto found_existing_subsegment = false;
+                    for(auto &unique_face_style_subsegment: unique_face_style_subsegments) {
+                        if(0 == memcmp(&face_net_style, &unique_face_style_subsegment.first, sizeof(A3DGraphStyleData))) {
+                            unique_face_style_subsegment.second.InsertShell(shell_kit);
+                            found_existing_subsegment = true;
+                            break;
+                        }
+                    }
+                    if(!found_existing_subsegment) {
+                        auto unique_face_style_subsegment = ri_segment.Subsegment();
+                        unique_face_style_subsegment.GetMaterialMappingControl().SetFaceMaterial(createMaterialKit(face_net_style));
+                        unique_face_style_subsegment.InsertShell(shell_kit);
+                        unique_face_style_subsegments.push_back(qMakePair(face_net_style, unique_face_style_subsegment));
+                    }
+                } else {
+                    ri_segment.InsertShell(shell_kit);
+                }
             }
             
             // insert the line kits to represent edges
@@ -188,7 +212,60 @@ HPS::MatrixKit SceneGraphBuilder::computeNetTransform(std::vector<A3DEntity*> co
 }
 
 
+namespace {
+    HPS::RGBAColor getColor( A3DUns32 const &color_idx, double const &a ) {
+        if( A3D_DEFAULT_COLOR_INDEX == color_idx ) {
+            return HPS::RGBAColor( 1., 0., 0., 1. );
+        }
+        A3DGraphRgbColorData rgb_color_data;
+        A3D_INITIALIZE_DATA( A3DGraphRgbColorData, rgb_color_data );
+        A3DGlobalGetGraphRgbColorData( color_idx, &rgb_color_data );
+        auto const &r = rgb_color_data.m_dRed;
+        auto const &g = rgb_color_data.m_dGreen;
+        auto const &b = rgb_color_data.m_dBlue;
+        return HPS::RGBAColor( r, g, b, a );
+    }
+}
+
 HPS::MaterialKit SceneGraphBuilder::createMaterialKit( A3DGraphStyleData const &style_data ) {
     HPS::MaterialKit mk;
+    if( style_data.m_bMaterial ) {
+        A3DBool is_texuture = false;
+        A3DGlobalIsMaterialTexture( style_data.m_uiRgbColorIndex, &is_texuture );
+        if( is_texuture ) {
+            A3DGraphTextureDefinitionData texture_def;
+            A3D_INITIALIZE_DATA( A3DGraphTextureDefinitionData, texture_def );
+            A3DGlobalGetGraphTextureDefinitionData( style_data.m_uiRgbColorIndex, &texture_def );
+            
+            A3DGraphPictureData picture;
+            A3D_INITIALIZE_DATA( A3DGraphPictureData, picture );
+            A3DGlobalGetGraphPictureData( texture_def.m_uiPictureIndex, &picture );
+            
+            // TODO push the texture data into the portfolio
+            // apply style to segment
+            
+        } else {
+            A3DGraphMaterialData material_data;
+            A3D_INITIALIZE_DATA( A3DGraphMaterialData, material_data );
+            A3DGlobalGetGraphMaterialData( style_data.m_uiRgbColorIndex, &material_data );
+            auto const ambient_color = getColor( material_data.m_uiAmbient, material_data.m_dAmbientAlpha );
+            auto const diffuse_color = getColor( material_data.m_uiDiffuse, material_data.m_dDiffuseAlpha );
+            if( ambient_color.alpha == 1. && diffuse_color.alpha == 0. ) {
+                mk.SetDiffuse( ambient_color );
+            } else if( ambient_color.alpha == 0. && diffuse_color.alpha == 1. ) {
+                mk.SetDiffuse( diffuse_color );
+            } else {
+                mk.SetDiffuse( HPS::Interpolate( ambient_color, diffuse_color, 0.5 ) );
+            }
+            mk.SetEmission( getColor( material_data.m_uiEmissive, material_data.m_dEmissiveAlpha ) );
+            mk.SetSpecular( getColor( material_data.m_uiSpecular, material_data.m_dSpecularAlpha ) );
+        }
+    } else {
+        auto const a = static_cast<double>(style_data.m_bIsTransparencyDefined ? style_data.m_ucTransparency : 255u) / 255.;
+        auto const color = getColor( style_data.m_uiRgbColorIndex, a );
+        mk.SetDiffuse( color );
+        mk.SetSpecular( HPS::RGBAColor::Nothing() );
+        mk.SetEmission( HPS::RGBAColor::Nothing() );
+    }
     return mk;
 }
