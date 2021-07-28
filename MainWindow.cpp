@@ -1,3 +1,4 @@
+#include <A3DSDKIncludes.h>
 #include "Application.h"
 #include "MainWindow.h"
 #include "SceneGraphBuilder.h"
@@ -75,6 +76,20 @@ void MainWindow::onFileOpen() {
     onFileClose();
     
     // open new file
+    A3DRWParamsLoadData load_params;
+    A3D_INITIALIZE_DATA(A3DRWParamsLoadData, load_params);
+    load_params.m_sGeneral.m_eReadGeomTessMode = kA3DReadTessOnly;
+    load_params.m_sGeneral.m_bReadSolids = true;
+
+    A3DAsmModelFile *model_file = nullptr;
+    auto const load_result = A3DAsmModelFileLoadFromFile(qPrintable(filename), &load_params, &model_file);
+    if(A3D_SUCCESS != load_result) {
+        QString error_mesage = A3DMiscGetErrorMsg(load_result);
+        QMessageBox::warning(this, "Load Error", QString("Unable to load the specified file. ") + error_mesage);
+        return;
+    }
+
+    static_cast<Application*>(qApp)->setModelFile(model_file);
 
 
     
@@ -82,6 +97,8 @@ void MainWindow::onFileOpen() {
 }
 
 void MainWindow::onFileClose() {
+    
+    static_cast<Application*>(qApp)->setModelFile(nullptr);
     
     auto hps_model = _hps_widget->getView().GetAttachedModel();
     if(hps_model.Type() == HPS::Type::Model) {
