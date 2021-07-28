@@ -90,8 +90,16 @@ void MainWindow::onFileOpen() {
     }
 
     static_cast<Application*>(qApp)->setModelFile(model_file);
-
-
+    
+    SceneGraphBuilder builder(model_file);
+    
+    auto hps_model = HPS::Factory::CreateModel();
+    hps_model.GetSegmentKey().IncludeSegment(builder.build());
+    _hps_widget->getView().AttachModel(hps_model);
+    
+    HPS::CameraKit camera;
+    _hps_widget->getView().ComputeFitWorldCamera(camera);
+    _hps_widget->getView().SmoothTransition(camera);
     
     _bom_table_widget->refresh();
 }
