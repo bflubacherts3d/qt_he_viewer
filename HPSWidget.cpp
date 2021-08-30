@@ -140,7 +140,7 @@ HPS::MouseEvent ts3d::HPSWidget::buildMouseEvent(QMouseEvent * in_event, HPS::Mo
     else if (in_event->button() == Qt::MouseButton::MiddleButton)
         out_event.CurrentButton = HPS::MouseButtons::ButtonMiddle();
     
-    HPS::Point pos(in_event->x() * scaleFactor, in_event->y() * scaleFactor, 0);
+    HPS::Point pos(in_event->position().x() * scaleFactor, in_event->position().y() * scaleFactor, 0);
     _canvas.GetWindowKey().ConvertCoordinate(HPS::Coordinate::Space::Pixel, pos, HPS::Coordinate::Space::Window, pos);
     out_event.Location = pos;
     
