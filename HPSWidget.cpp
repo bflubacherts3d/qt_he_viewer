@@ -8,7 +8,7 @@
 ts3d::HPSWidget::HPSWidget(QWidget *parent )
 : QWidget(parent) {
     setAttribute(Qt::WA_PaintOnScreen);
-    setAttribute(Qt::WA_NoBackground);
+    //setAttribute(Qt::WA_NoBackground);
     setAttribute(Qt::WA_NoSystemBackground);
     setBackgroundRole(QPalette::NoRole);
     
@@ -103,16 +103,19 @@ namespace {
 
 void ts3d::HPSWidget::wheelEvent(QWheelEvent * event)
 {
+#if QT_VERSION_MAJOR == 6
+    HPS::Point pos(event->position().x(), event->position().y(), 0);
+#else
     HPS::Point pos(event->x(), event->y(), 0);
+#endif
     _canvas.GetWindowKey().ConvertCoordinate(HPS::Coordinate::Space::Pixel, pos, HPS::Coordinate::Space::Window, pos);
     
     HPS::MouseEvent out_event;
     out_event.CurrentAction = HPS::MouseEvent::Action::Scroll;
     out_event.Location = pos;
     
-    //NOTE: the delta() function is obsolete as of QT5.
-    //Try to replace it with pixelDelta or angleDelta
-    out_event.WheelDelta = event->delta();
+
+    out_event.WheelDelta = event->angleDelta().manhattanLength();
     
     getModifierKeys(&out_event);
     
@@ -137,7 +140,7 @@ HPS::MouseEvent ts3d::HPSWidget::buildMouseEvent(QMouseEvent * in_event, HPS::Mo
     else if (in_event->button() == Qt::MouseButton::MiddleButton)
         out_event.CurrentButton = HPS::MouseButtons::ButtonMiddle();
     
-    HPS::Point pos(in_event->x() * scaleFactor, in_event->y() * scaleFactor, 0);
+    HPS::Point pos(in_event->position().x() * scaleFactor, in_event->position().y() * scaleFactor, 0);
     _canvas.GetWindowKey().ConvertCoordinate(HPS::Coordinate::Space::Pixel, pos, HPS::Coordinate::Space::Window, pos);
     out_event.Location = pos;
     

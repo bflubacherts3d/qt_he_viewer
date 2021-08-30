@@ -114,9 +114,9 @@ QVector<HPS::ShellKit> SceneGraphBuilder::createShellKits(A3DRiRepresentationIte
                                                          exchange_coords[exchange_pindex+1],
                                                          exchange_coords[exchange_pindex+2]));
                 exchange_to_hps_index_map[exchange_pindex] = next_index;
-                face_list.push_back(next_index);
+                face_list.push_back(static_cast<int>(next_index));
             } else {
-                face_list.push_back(it.value());
+                face_list.push_back(static_cast<int>(it.value()));
             }
             
             auto const exchange_nindex = face_mesh.normals()[idx];
