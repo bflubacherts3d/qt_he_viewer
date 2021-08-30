@@ -10,6 +10,7 @@ BOMTableWidget::BOMTableWidget(QWidget *parent) : QTableWidget( parent ) {
 
 void BOMTableWidget::refresh() {
     clear();
+    setRowCount(0);
     setHorizontalHeaderLabels({ "Part Name", "#" });
     auto const model_file = static_cast<Application*>(qApp)->getModelFile();
     if(nullptr == model_file) {
