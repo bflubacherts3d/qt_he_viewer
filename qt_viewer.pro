@@ -1,5 +1,5 @@
-HOOPS_VISUALIZE_PATH=/opt/local/ts3d/HOOPS_Visualize_2021_SP1_U1
-HOOPS_EXCHANGE_PATH=/opt/local/ts3d/HOOPS_Exchange_2021_SP1_U1
+HOOPS_VISUALIZE_PATH=C://Users//sumit.kulkarni//source//HOOPS_Visualize_2021_SP2_U1_Win_v140
+HOOPS_EXCHANGE_PATH=C://Users//sumit.kulkarni//source//HOOPS_Exchange_Publish_2021_SP2_U1_Win_VS2015
 TEMPLATE = app
 CONFIG -= release debug_and_release qt
 CONFIG *= qt c++14 exceptions rtti debug
@@ -30,3 +30,10 @@ macx {
     LIBS += -lhps_sprk_ops -lhps_sprk -lhps_core
     LIBS += -Wl,-rpath,$${HOOPS_VISUALIZE_PATH}/bin/macos
 }
+
+win32:CONFIG(release, debug|release): LIBS += -L$${HOOPS_VISUALIZE_PATH}/lib/win64_v140/ -lhps_core -lhps_sprk -lhps_sprk_ops
+else:win32:CONFIG(debug, debug|release): LIBS += -L$${HOOPS_VISUALIZE_PATH}/lib/win64_v140d/ -lhps_core -lhps_sprk -lhps_sprk_ops
+
+INCLUDEPATH += $${HOOPS_VISUALIZE_PATH}/lib/win64_v140d
+DEPENDPATH += $${HOOPS_VISUALIZE_PATH}/lib/win64_v140d
+

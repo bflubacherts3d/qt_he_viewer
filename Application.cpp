@@ -14,7 +14,7 @@ _world(HOOPS_LICENSE) {
     setApplicationDisplayName("HOOPS Exchange Tutorial");
     
     // Initialize HOOPS Exchange
-    if(!A3DSDKLoadLibrary("/opt/local/ts3d/HOOPS_Exchange_2021_SP1_U1/bin/osx64")) {
+    if(!A3DSDKLoadLibraryA("/opt/local/ts3d/HOOPS_Exchange_2021_SP1_U1/bin/osx64")) {
         throw std::runtime_error("Unable to load HOOPS Exchange.");
     }
     

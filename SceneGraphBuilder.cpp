@@ -178,7 +178,7 @@ HPS::MatrixKit SceneGraphBuilder::computeNetTransform(ts3d::InstancePath const &
     HPS::MatrixKit net_martix;
     for(auto const entity : instance_path) {
         HPS::MatrixKit matrix_kit;
-        auto const xform = ts3d::getLocation(entity);
+        auto const xform = ::getLocation(entity);
         auto const t = ts3d::getEntityType(xform);
         if(t == kA3DTypeMiscCartesianTransformation) {
             ts3d::A3DMiscCartesianTransformationWrapper d(xform);

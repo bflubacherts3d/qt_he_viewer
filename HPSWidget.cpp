@@ -8,7 +8,7 @@
 ts3d::HPSWidget::HPSWidget(QWidget *parent )
 : QWidget(parent) {
     setAttribute(Qt::WA_PaintOnScreen);
-    setAttribute(Qt::WA_NoBackground);
+    setAttribute(Qt::WA_NoSystemBackground);
     setAttribute(Qt::WA_NoSystemBackground);
     setBackgroundRole(QPalette::NoRole);
     
@@ -103,7 +103,7 @@ namespace {
 
 void ts3d::HPSWidget::wheelEvent(QWheelEvent * event)
 {
-    HPS::Point pos(event->x(), event->y(), 0);
+    HPS::Point pos(event->position().x(), event->position().y(), 0);
     _canvas.GetWindowKey().ConvertCoordinate(HPS::Coordinate::Space::Pixel, pos, HPS::Coordinate::Space::Window, pos);
     
     HPS::MouseEvent out_event;
@@ -112,7 +112,7 @@ void ts3d::HPSWidget::wheelEvent(QWheelEvent * event)
     
     //NOTE: the delta() function is obsolete as of QT5.
     //Try to replace it with pixelDelta or angleDelta
-    out_event.WheelDelta = event->delta();
+    out_event.WheelDelta = event->pixelDelta().x();
     
     getModifierKeys(&out_event);
     

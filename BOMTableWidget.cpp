@@ -27,11 +27,11 @@ void BOMTableWidget::refresh() {
         auto instance_count_item = new QTableWidgetItem(QString("%1").arg(number_of_instances));
         setItem(row, 1, instance_count_item );
 
-        auto const part_name = ts3d::getName(part);
+        auto const part_name = ::getName(part);
         if(part_name.empty()) {
             auto an_instance_path = part_instance_paths.front();
             an_instance_path.pop_back();
-            const_cast<std::string&>(part_name) = ts3d::getName(an_instance_path.back());
+            const_cast<std::string&>(part_name) = ::getName(an_instance_path.back());
         }
         auto part_name_item = new QTableWidgetItem(part_name.c_str());
         setItem(row, 0, part_name_item);
