@@ -9,4 +9,5 @@ BOMTableWidget::BOMTableWidget(QWidget *parent) : QTableWidget( parent ) {
 void BOMTableWidget::refresh() {
     clear();
     setHorizontalHeaderLabels({ "Part Name", "#" });
+    setRowCount(0);
 }
