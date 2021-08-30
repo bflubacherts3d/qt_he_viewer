@@ -17,7 +17,7 @@ void BOMTableWidget::refresh() {
     }
     
     ts3d::InstancePathMap instance_path_map;
-    auto const unique_parts = ts3d::getUniqueChildren(model_file, kA3DTypeAsmPartDefinition, instance_path_map);
+    auto const unique_parts = ts3d::getUniqueLeafEntities(model_file, kA3DTypeAsmPartDefinition, instance_path_map);
     setRowCount(unique_parts.size());
     auto row = 0;
     for(auto const part : unique_parts) {
