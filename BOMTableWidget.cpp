@@ -19,7 +19,7 @@ void BOMTableWidget::refresh() {
     
     ts3d::InstancePathMap instance_path_map;
     auto const unique_parts = ts3d::getUniqueLeafEntities(model_file, kA3DTypeAsmPartDefinition, instance_path_map);
-    setRowCount(unique_parts.size());
+    setRowCount(static_cast<int>(unique_parts.size()));
     auto row = 0;
     for(auto const part : unique_parts) {
         auto const &part_instance_paths = instance_path_map[part];
