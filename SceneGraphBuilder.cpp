@@ -100,24 +100,17 @@ QVector<HPS::ShellKit> SceneGraphBuilder::createShellKits(A3DRiRepresentationIte
         HPS::PointArray vertex_positions;
         HPS::VectorArray vertex_normals;
         auto const face_mesh = tess3d->getIndexMeshForFace( idx );
-        QHash<A3DUns32, size_t> exchange_to_hps_index_map;
         HPS::IntArray face_list;
         for(auto idx = 0u; idx < face_mesh.vertices().size(); ++idx) {
             if(0 == idx % 3) {
                 face_list.push_back(3);
             }
             auto const exchange_pindex = face_mesh.vertices()[idx];
-            auto const it = exchange_to_hps_index_map.find(exchange_pindex);
-            if( std::end(exchange_to_hps_index_map) == it ) {
-                auto const next_index = vertex_positions.size();
-                vertex_positions.emplace_back(HPS::Point(exchange_coords[exchange_pindex],
-                                                         exchange_coords[exchange_pindex+1],
-                                                         exchange_coords[exchange_pindex+2]));
-                exchange_to_hps_index_map[exchange_pindex] = next_index;
-                face_list.push_back(static_cast<int>(next_index));
-            } else {
-                face_list.push_back(static_cast<int>(it.value()));
-            }
+            auto const next_index = vertex_positions.size();
+            vertex_positions.emplace_back(HPS::Point(exchange_coords[exchange_pindex],
+                                                        exchange_coords[exchange_pindex+1],
+                                                        exchange_coords[exchange_pindex+2]));
+            face_list.push_back(static_cast<int>(next_index));
             
             auto const exchange_nindex = face_mesh.normals()[idx];
             auto const vertex_normal = HPS::Vector(exchange_normals[exchange_nindex],
