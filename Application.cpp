@@ -12,6 +12,8 @@ _world(HOOPS_LICENSE) {
     
     setApplicationName("Tutorial");
     setApplicationDisplayName("HOOPS Exchange Tutorial");
+    setOrganizationDomain("techsoft3d.com");
+    setOrganizationName("TechSoft 3D");
     
     // Initialize HOOPS Exchange
     QString const exchange_bin_folder = "/opt/local/ts3d/HOOPS_Exchange_2021_SP1_U1/bin/osx64";

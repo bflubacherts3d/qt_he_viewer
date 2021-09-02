@@ -36,7 +36,12 @@ macx {
 win32 {
     release:D=
     debug:D=d
-    lib_path = $${HOOPS_VISUALIZE_PATH}/lib/win64_v141$${D}
+    exists($${HOOPS_VISUALIZE_PATH}/lib/win64_v141$${D}) {
+        lib_path = $${HOOPS_VISUALIZE_PATH}/lib/win64_v141$${D}
+    }
+    exists($${HOOPS_VISUALIZE_PATH}/lib/win64_v140$${D}) {
+        lib_path = $${HOOPS_VISUALIZE_PATH}/lib/win64_v140$${D}
+    }
     LIBS += $${lib_path}/hps_core.lib \
             $${lib_path}/hps_sprk.lib \
             $${lib_path}/hps_sprk_ops.lib
