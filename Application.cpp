@@ -9,6 +9,8 @@ _world(HOOPS_LICENSE) {
     
     setApplicationName("Tutorial");
     setApplicationDisplayName("HOOPS Exchange Tutorial");
+    setOrganizationDomain("techsoft3d.com");
+    setOrganizationName("TechSoft 3D");
     
     // Initialize HOOPS Exchange
 
