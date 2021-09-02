@@ -30,14 +30,33 @@ MainWindow::MainWindow() : QMainWindow() {
     _hps_widget->getView().GetSegmentKey().InsertDistantLight(light);
     _hps_widget->getView().GetSegmentKey().GetVisibilityControl().SetLines(true);
     _hps_widget->getView().GetSegmentKey().GetMaterialMappingControl().SetLineColor(HPS::RGBAColor::Black());
+
+    QSettings settings;
+    auto const geometry = settings.value("MainWindow/geometry").toByteArray();
+    if (geometry.isEmpty()) {
+        QRect rect = qGuiApp->primaryScreen()->geometry();
+        resize(rect.width() / 3, rect.height() / 3);
+    }
+    else {
+        restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
+        restoreState(settings.value("MainWindow/windowState").toByteArray());
+    }
 }
 
 MainWindow::~MainWindow( void ) {
     
 }
 
+void MainWindow::closeEvent(QCloseEvent* event) {
+    QSettings settings;
+    settings.setValue("MainWindow/geometry", saveGeometry());
+    settings.setValue("MainWindow/windowState", saveState());
+    QMainWindow::closeEvent(event);
+}
+
 void MainWindow::onFileOpen() {
     static QStringList const filters = {
+        "All Files (*.*)",
         "3D Studio Files (*.3ds)",
         "3DXML Files (*.3dxml)",
         "ACIS SAT Files (*.sat *.sab)",
@@ -64,8 +83,7 @@ void MainWindow::onFileOpen() {
         "Universal 3D Files (*.u3d)",
         "VDA Files (*.vda)",
         "VRML Files (*.wrl *.vrml)",
-        "XVL Files (*.xv3 *.xv0)",
-        "All Files (*.*)"
+        "XVL Files (*.xv3 *.xv0)"
     };
     auto const filename = QFileDialog::getOpenFileName(this, tr("Open File"), ".", filters.join(";;") );
     if( filename.isEmpty() ) {

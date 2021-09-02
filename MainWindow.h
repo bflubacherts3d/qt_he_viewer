@@ -10,6 +10,9 @@ public:
     MainWindow();
     virtual ~MainWindow();
     
+protected:
+    virtual void closeEvent(QCloseEvent* event) override;
+
 private slots:
     void onFileOpen();
     void onFileClose();
